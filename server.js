@@ -1,10 +1,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
+const knex = require('knex');
+
+
+const db = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      port : 5432,
+      user : 'postgres',
+      password : '123',
+      database : 'face_recog'
+    }
+  });
+
+
+// console.log(db.select('*').from('users')); just an example on how to connect to the db
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const database = {
     users: [
@@ -25,13 +43,13 @@ const database = {
             joined: new Date()
         }
     ],
-    login: [
-        {
-            id: '004',
-            hash: '',
-            email: 'jhon@gmail.com'
-        }
-    ]
+    // login: [
+    //     {
+    //         id: '004',
+    //         hash: '',
+    //         email: 'jhon@gmail.com'
+    //     }
+    // ]
 }
 
 app.get('/', (req, res) => {
@@ -39,49 +57,48 @@ app.get('/', (req, res) => {
 })
 
 app.post("/signin", (req, res) => {
-    bcrypt.compare("annpw", '$2a$10$cGiqqAU3XV2Hp6Bjm/S1Ruc0HXJtpi5sHW0/dliUh8IDDM8r12yHe', function(err, res) {
-        console.log('first', res)
-    });
-    bcrypt.compare("veggies", '$2a$10$cGiqqAU3XV2Hp6Bjm/S1Ruc0HXJtpi5sHW0/dliUh8IDDM8r12yHe', function(err, res) {
-        console.log('second', res)
-    });
     if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
-        res.json('success');
+        res.json(database.users[0]);
     } else {
         res.status(400).json('error logging in');
     }
-    res.json('signin')
 })
 
 app.post('/register', (req, res) => {
     const {email, password, name} =  req.body;
-    // bcrypt.hash(password, null, null, function(err, hash) {
-    //     console.log(hash)
-    // });
-    database.users.push({
-        id: '003',
-            name: name,
+    db('users')
+        .returning('*')
+        .insert({
             email: email,
-            password: password,
-            entries: 0,
+            name: name,
             joined: new Date()
     })
-    res.json(database.users[database.users.length-1])
+    .then( user => {
+        res.json(user)
+    })
+    .catch(err => res.status(404).json(err))
+    
 })
 
 app.get('/profile/:id', (req, res) => {
     const { id } = req.params;
-    let found = false;
-    database.users.forEach( user => {
-        if(user.id === id){
-            found = true;
-            return res.json(user);
+    db.select('*').from('users').where({id})
+    .then( user => {
+        if (user.length){
+            res.json(user[0]);
+        } else {
+            res.status(400).json('user not found')
         }
-    })
-    if(!found){
-        res.status(400).json('user not found')
-    }
+    })  
+    .catch(err => res.status(400).json('error getting user'))
+
 })
+    
+
+    // if(!found){
+    //     res.status(400).json('user not found')
+    // }
+
 
 app.put('/image', (req, res) => {
     const { id } = req.body;
