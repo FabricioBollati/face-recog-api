@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "dev": "react-scripts start"
+    "start": "serve -s build",
+    "dev": "react-scripts start",
+    "heroku-postbuild": "npm run build"
   },
   "keywords": [],
   "author": "",
