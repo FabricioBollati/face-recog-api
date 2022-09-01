@@ -25,6 +25,7 @@ const db = knex({
 // console.log(db.select('*').from('users')); just an example on how to connect to the db
 
 const app = express();
+const port = process.env.PORT
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -64,6 +65,6 @@ app.get('/profile/:id', (req, res) =>{profile.handleRegister(req, res, db) })
 app.put('/image', (req, res) => {image.handleImage(req, res, db) })
 app.post('/imageurl', (req, res) => {image.handleApiCall(req, res) })
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`app is running on port ${process.env.PORT}`)
+app.listen(port || 3000, () => {
+    console.log(`app is running on port ${port}`)
 })
