@@ -21,42 +21,11 @@ const db = knex({
     }
   });
 
-
-// console.log(db.select('*').from('users')); just an example on how to connect to the db
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(bodyParser.json());
 app.use(cors());
-
-// const database = {
-//     users: [
-//         {
-//             id: '001',
-//             name: 'jhon',
-//             email: 'jhon@gmail.com',
-//             password: 'jhonpw',
-//             entries: 0,
-//             joined: new Date()
-//         },
-//         {
-//             id: '002',
-//             name: 'sally',
-//             email: 'sally@gmail.com',
-//             password: 'sallypw',
-//             entries: 0,
-//             joined: new Date()
-//         }
-//     ],
-//     // login: [
-//     //     {
-//     //         id: '004',
-//     //         hash: '',
-//     //         email: 'jhon@gmail.com'
-//     //     }
-//     // ]
-// }
 
 app.get('/', (req, res) => { res.send('success') })
 app.post("/signin", (req, res) => {signin.handleSignin(req, res, db, bcrypt) })
